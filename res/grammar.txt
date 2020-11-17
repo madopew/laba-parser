@@ -1,6 +1,6 @@
 translation_unit
-: external_declaration
 | translation_unit external_declaration
+: external_declaration
 ;
 
 external_declaration
@@ -52,8 +52,8 @@ direct_declarator
 ;
 
 assignment_expression
-: logical_or_expression
 | unary_expression assignment_operator logical_or_expression
+: logical_or_expression
 ;
 
 logical_or_expression
