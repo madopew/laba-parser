@@ -10,4 +10,7 @@ FLEX_TARGET(lexer lex/c_lexer.l ${CMAKE_CURRENT_SOURCE_DIR}/src/c_lexer.c)
 add_executable(laba3
         headers/tokentypes.h
         ${FLEX_lexer_OUTPUTS}
-        src/test_parser.c)
+        src/test_parser.c
+        headers/token_stream.h
+        src/token_stream.c
+        )
