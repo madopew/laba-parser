@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../headers/tokentypes.h"
+#include "../headers/token_stream.h"
 
 #define FILE_PATH_SIZE 64
 #define bool int
@@ -18,7 +19,8 @@ char *findExtension(char *filePath) {
     return strrchr(filePath, '.');
 }
 
-bool isCorrectExtension(char *fileExtension) {
+bool isCorrectExtension(char *filepath) {
+    char *fileExtension = findExtension(filepath);
     if(!fileExtension) {
         puts("Your source file is not C or C++ program");
         return false;
@@ -45,9 +47,19 @@ void inputFilePath(char *path, size_t len) {
     path[strlen(path) - 1] = 0;
 }
 
-#include "../headers/token_stream.h"
-
 int main() {
-
+    /*char file[FILE_PATH_SIZE];
+    do {
+        memset(file, 0, FILE_PATH_SIZE);
+        inputFilePath(file, FILE_PATH_SIZE);
+    } while(!isCorrectExtension(file));*/
+    char *file = "../res/test.c";
+    yyin = fopen(file, "r");
+    tstream *tokens = tinit();
+    int c;
+    while((c = yylex())) {
+        tadd(tokens, c);
+    }
+    tclose(tokens);
 }
 
