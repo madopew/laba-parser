@@ -45,20 +45,9 @@ void inputFilePath(char *path, size_t len) {
     path[strlen(path) - 1] = 0;
 }
 
-int main() {
-    /*char filePath[FILE_PATH_SIZE];
-    char *fileExtension;
-    do {
-        memset(filePath, 0, FILE_PATH_SIZE);
-        inputFilePath(filePath, FILE_PATH_SIZE);
-        fileExtension = findExtension(filePath);
-    } while (!isCorrectExtension(fileExtension));*/
+#include "../headers/token_stream.h"
 
-    yyin = fopen("../res/test", "r");
-    int token;
-    do {
-        token = yylex();
-    } while(token);
-    return 0;
+int main() {
+
 }
 

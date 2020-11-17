@@ -22,6 +22,7 @@
  */
 #include <stdio.h>
 #include "../headers/tokentypes.h"
+#include "../headers/token_stream.h"
 
 extern int yylex();
 extern FILE *yyin;
@@ -59,13 +60,20 @@ void popTimes(int times) {
 
 int main() {
     yyin = fopen("../res/test.c", "r");
-    while((arr[current_index++] = yylex())) {
-        printf(" %d ", arr[current_index - 1]);
+    tstream *s = tinit();
+    int c;
+    while((c = yylex())) {
+        tadd(s, c);
     }
-    size = current_index - 1;
+    printf("%lu %lu", s->size, s->capacity);
+    /*while((arr[current_index++] = yylex())) {
+        printf(" %d ", arr[current_index - 1]);
+    }*/
+   /* size = current_index - 1;
     current_index = 0;
     int result = selection_statement();
-    printf("Result: %d\n", result);
+    printf("Result: %d\n", result);*/
+    tclose(s);
     return 0;
 }
 
