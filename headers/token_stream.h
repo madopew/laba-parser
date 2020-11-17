@@ -17,6 +17,7 @@ typedef struct {
 tstream *tinit(void);
 void tclose(tstream*);
 void tadd(tstream*, int);
+int tend(tstream*);
 
 void tpop(tstream*);
 int tpeek(tstream*);

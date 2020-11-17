@@ -41,6 +41,10 @@ void tadd(tstream *s, int token) {
     s->size += 1;
 }
 
+int tend(tstream *s) {
+    return (s->index == s->size);
+}
+
 void tpop(tstream *s) {
     if(s->index + 1 > s->size) {
         fprintf(stderr, "%s\n", "index out of range! : pop");
