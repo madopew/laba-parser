@@ -5,12 +5,12 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 FIND_PACKAGE(FLEX REQUIRED)
-FLEX_TARGET(lexer lex/c_lexer.l ${CMAKE_CURRENT_SOURCE_DIR}/src/c_lexer.c)
+FLEX_TARGET(lexer lex/c_lexer.l ${CMAKE_CURRENT_SOURCE_DIR}/lex/c_lexer.c)
 
 add_executable(laba3
         headers/tokentypes.h
         ${FLEX_lexer_OUTPUTS}
-        src/test_parser.c
+        src/main.c
         headers/token_stream.h
         src/token_stream.c
-        )
+        headers/parser.h src/parser.c)
