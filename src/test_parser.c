@@ -14,9 +14,10 @@
 
   statement
         : OPEN_CURLY expression_list CLOSE_CURLY
-        | expression_list
+        | expression SEMICOLON
 
   expression_list
+        : expression SEMICOLON expression_list
         | expression SEMICOLON
  */
 #include <stdio.h>
@@ -30,6 +31,7 @@ int expression();
 int statement();
 int expression_list();
 
+int size = 0;
 int current_index = 0;
 int arr[1000] = {0};
 
@@ -37,8 +39,22 @@ int peek() {
     return arr[current_index];
 }
 
+int peekDif(int dif) {
+    if (current_index + dif >= size) {
+        return -1;
+    } //no sense
+
+    return arr[current_index + dif];
+}
+
 int pop() {
     return arr[current_index++];
+}
+
+void popTimes(int times) {
+    for (int i = 0; i < times; i++) {
+        pop();
+    }
 }
 
 int main() {
@@ -46,6 +62,7 @@ int main() {
     while((arr[current_index++] = yylex())) {
         printf(" %d ", arr[current_index - 1]);
     }
+    size = current_index - 1;
     current_index = 0;
     int result = selection_statement();
     printf("Result: %d\n", result);
@@ -58,6 +75,7 @@ int selection_statement() {
     int second = pop();
     if(first == IF && second == OPEN_BRACKET) {
         result = expression();
+        popTimes(3);
         if(result) {
             result = pop() == CLOSE_BRACKET;
             if(result) {
@@ -77,11 +95,11 @@ int selection_statement() {
 
 int expression() {
     int result = 0;
-    int first = pop();
-    int second = pop();
-    int third = pop();
+    int first = peek();
+    int second = peekDif(1);
+    int third = peekDif(2);
     if(first == I_CONSTANT && third == I_CONSTANT) {
-        if(second == LESS_CHAR || second == GREATER_CHAR || second == EQ_OP)
+        if(second == EQ_CHAR || second == LESS_CHAR || second == GREATER_CHAR)
             result = 1;
     }
     return result;
@@ -94,10 +112,24 @@ int statement() {
         pop();
         result = expression_list();
         if(result) {
-            result = pop() == CLOSE_CURLY;
+            int nextToken = peek();
+            if (nextToken == CLOSE_CURLY) {
+                pop();
+            } else {
+                result = 0;
+            }
         }
     } else {
-        result = expression_list();
+        result = expression();
+        if (result) {
+            popTimes(3);
+            int nextToken = peek();
+            if (nextToken == SEMICOLON_CHAR) {
+                pop();
+            } else {
+                result = 0;
+            }
+        }
     }
     return result;
 }
@@ -105,7 +137,13 @@ int statement() {
 int expression_list() {
     int result = expression();
     if(result) {
-        result = pop() == CLOSE_CURLY;
+        int nextToken = peekDif(3);
+        if (nextToken == SEMICOLON_CHAR) {
+            popTimes(4);
+            while (expression_list());
+        } else {
+            result = 0;
+        }
     }
     return result;
 }
