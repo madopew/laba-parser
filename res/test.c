@@ -1,5 +1,5 @@
-int main();
+#include <stdio.h>
 
-int x;
-
-int foo();
+int main() {
+    x->foo = 3;
+}
