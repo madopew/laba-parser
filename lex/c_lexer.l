@@ -107,6 +107,7 @@ void preprocessor(void);
 "."			    {  return DOT_CHAR; }
 "&"			    {  return AND_CHAR; }
 "!"			    {  return EXCL_CHAR; }
+"~"             {  return TILDA_CHAR; }
 "-"			    {  return MINUS_CHAR; }
 "+"		    	{  return PLUS_CHAR; }
 "*"		    	{  return MUL_CHAR; }
