@@ -1,331 +1,307 @@
 translation_unit
-| translation_unit external_declaration
-: external_declaration
-;
+/ external_declaration translation_unit_ext
+
+translation_unit_ext
+/ 1
+/ external_declaration translation_unit_ext
+
 
 external_declaration
-: function_definition
-| declaration
-;
+/ function_definition
+/ declaration
+
 
 function_definition
-| declaration_specifiers declarator compound_statement
-;
+/ declaration_specifiers declarator compound_statement
+
 
 declaration_specifiers
-| type_specifier declaration_specifiers
-| type_specifier
-| CONST declaration_specifiers
-| CONST
-;
+/ type_specifier declaration_specifiers
+/ type_specifier
+/ CONST declaration_specifiers
+/ CONST
+
 
 type_specifier
-: VOID
-| CHAR
-| SHORT
-| INT
-| LONG
-| FLOAT
-| DOUBLE
-| SIGNED
-| UNSIGNED
-;
+/ VOID
+/ CHAR
+/ SHORT
+/ INT
+/ LONG
+/ FLOAT
+/ DOUBLE
+/ SIGNED
+/ UNSIGNED
+
 
 declarator
-: pointer direct_declarator
-| direct_declarator
-;
+/ pointer direct_declarator
+/ direct_declarator
+
 
 pointer
-: '*' pointer
-| '*'
-;
+/ MUL_CHAR pointer
+/ MUL_CHAR
+
 
 direct_declarator
-: IDENTIFIER
-| '(' declarator ')'
-| direct_declarator '[' ']'
-| direct_declarator '[' assignment_expression ']'
-| direct_declarator '(' parameter_list ')'
-| direct_declarator '(' ')'
-| direct_declarator '(' identifier_list ')'
-;
+/ IDENTIFIER
+/ OPEN_BRACKET declarator CLOSE_BRACKET
+/ direct_declarator OPEN_SQUARE CLOSE_SQUARE
+/ direct_declarator OPEN_SQUARE constant_expression CLOSE_SQUARE
+/ direct_declarator OPEN_BRACKET parameter_list CLOSE_BRACKET
+/ direct_declarator OPEN_BRACKET CLOSE_BRACKET
+/ direct_declarator OPEN_BRACKET identifier_list CLOSE_BRACKET
+
 
 assignment_expression
-| unary_expression assignment_operator logical_or_expression
-: logical_or_expression
-;
+/ unary_expression assignment_operator logical_or_expression
+/ logical_or_expression
+
 
 logical_or_expression
-: logical_and_expression
-| logical_or_expression OR_OP logical_and_expression
-;
+/ logical_and_expression OR_OP logical_or_expression
+/ logical_and_expression
+
 
 logical_and_expression
-: inclusive_or_expression
-| logical_and_expression AND_OP inclusive_or_expression
-;
+/ inclusive_or_expression AND_OP logical_and_expression
+/ inclusive_or_expression
+
 
 inclusive_or_expression
-: exclusive_or_expression
-| inclusive_or_expression '|' exclusive_or_expression
-;
+/ exclusive_or_expression OR_CHAR inclusive_or_expression
+/ exclusive_or_expression
+
 
 exclusive_or_expression
-: and_expression
-| exclusive_or_expression '^' and_expression
-;
+/ and_expression XOR_CHAR exclusive_or_expression
+/ and_expression
+
 
 and_expression
-: equality_expression
-| and_expression '&' equality_expression
-;
+/ equality_expression AND_CHAR and_expression
+/ equality_expression
+
 
 equality_expression
-: relational_expression
-| equality_expression EQ_OP relational_expression
-| equality_expression NE_OP relational_expression
-;
+/ relational_expression NE_OP equality_expression
+/ relational_expression EQ_OP equality_expression
+/ relational_expression
+
 
 relational_expression
-: shift_expression
-| relational_expression '<' shift_expression
-| relational_expression '>' shift_expression
-| relational_expression LE_OP shift_expression
-| relational_expression GE_OP shift_expression
-;
+/ shift_expression LESS_CHAR relational_expression
+/ shift_expression GREATER_CHAR relational_expression
+/ shift_expression LE_OP relational_expression
+/ shift_expression GE_OP  relational_expression
+/ shift_expression
+
 
 shift_expression
-: additive_expression
-| shift_expression LEFT_OP additive_expression
-| shift_expression RIGHT_OP additive_expression
-;
+/ additive_expression LEFT_OP shift_expression
+/ additive_expression RIGHT_OP shift_expression
+/ additive_expression
+
 
 additive_expression
-: multiplicative_expression
-| additive_expression '+' multiplicative_expression
-| additive_expression '-' multiplicative_expression
-;
+/ multiplicative_expression PLUS_CHAR additive_expression
+/ multiplicative_expression MINUS_CHAR additive_expression
+/ multiplicative_expression
+
 
 multiplicative_expression
-: cast_expression
-| multiplicative_expression '*' cast_expression
-| multiplicative_expression '/' cast_expression
-| multiplicative_expression '%' cast_expression
-;
+/ cast_expression MUL_CHAR multiplicative_expression
+/ cast_expression DIV_CHAR multiplicative_expression
+/ cast_expression MOD_CHAR multiplicative_expression
+/ cast_expression
 
 cast_expression
-: unary_expression
-| '(' type_name ')' cast_expression
-;
+/ unary_expression
+/ OPEN_BRACKET type_name CLOSE_BRACKET cast_expression
+
 
 unary_expression
-: postfix_expression
-| INC_OP unary_expression
-| DEC_OP unary_expression
-| unary_operator cast_expression
-| SIZEOF unary_expression
-| SIZEOF '(' type_name ')'
+/ postfix_expression
+/ INC_OP unary_expression
+/ DEC_OP unary_expression
+/ SIZEOF unary_expression
+/ SIZEOF OPEN_BRACKET type_name CLOSE_BRACKET
+/ unary_operator cast_expression
+
 
 postfix_expression
-: primary_expression
-| postfix_expression '[' expression ']'
-| postfix_expression '(' ')'
-| postfix_expression '(' argument_expression_list ')'
-| postfix_expression INC_OP
-| postfix_expression DEC_OP
-;
+/ primary_expression postfix_expression_ext
+
+postfix_expression_ext
+/ postfix_expression_operators postfix_expression_ext
+/ 1
+
+postfix_expression_operators
+/ OPEN_SQUARE expression CLOSE_SQUARE
+/ OPEN_BRACKET CLOSE_BRACKET
+/ OPEN_BRACKET argument_expression_list CLOSE_BRACKET
+/ INC_OP
+/ DEC_OP
 
 primary_expression
-: IDENTIFIER
-| I_CONSTANT
-| F_CONSTANT
-| STRING_LITERAL
-| '(' expression ')'
+/ IDENTIFIER
+/ I_CONSTANT
+/ F_CONSTANT
+/ STRING_LITERAL
+/ OPEN_BRACKET expression CLOSE_BRACKET
 
 expression
-: assignment_expression
-| expression ',' assignment_expression
-;
+/ assignment_expression COMMA_CHAR expression
+/ assignment_expression
 
 argument_expression_list
-: assignment_expression
-| argument_expression_list ',' assignment_expression
-;
+/ assignment_expression COMMA_CHAR argument_expression_list
+/ assignment_expression
+
 
 unary_operator
-: '&'
-| '*'
-| '+'
-| '-'
-| '~'
-| '!'
-;
+/ AND_CHAR
+/ MUL_CHAR
+/ PLUS_CHAR
+/ MINUS_CHAR
+/ TILDA_CHAR
+/ EXCL_CHAR
 
 type_name
-: specifier_qualifier_list abstract_declarator
-| specifier_qualifier_list
-;
+/ specifier_qualifier_list abstract_declarator
+/ specifier_qualifier_list
 
 specifier_qualifier_list
-: type_specifier specifier_qualifier_list
-| type_specifier
+/ type_specifier specifier_qualifier_list
+/ type_specifier
 
 abstract_declarator
-: pointer direct_abstract_declarator
-| pointer
-| direct_abstract_declarator
-;
+/ pointer direct_abstract_declarator
+/ pointer
+/ direct_abstract_declarator
+
 
 direct_abstract_declarator
-: '(' abstract_declarator ')'
-| '[' ']'
-| '[' '*' ']'
-| '[' STATIC assignment_expression ']'
-| '[' assignment_expression ']'
-| direct_abstract_declarator '[' ']'
-| direct_abstract_declarator '[' '*' ']'
-| direct_abstract_declarator '[' STATIC assignment_expression ']'
-| direct_abstract_declarator '[' assignment_expression ']'
-| '(' ')'
-| '(' parameter_type_list ')'
-| direct_abstract_declarator '(' ')'
-| direct_abstract_declarator
+/ OPEN_BRACKET abstract_declarator CLOSE_BRACKET
+/ OPEN_SQUARE CLOSE_SQUARE
+/ OPEN_SQUARE constant_expression CLOSE_SQUARE
+/ direct_abstract_declarator OPEN_SQUARE CLOSE_SQUARE
+/ direct_abstract_declarator OPEN_SQUARE constant_expression CLOSE_SQUARE
+/ OPEN_BRACKET CLOSE_BRACKET
+/ OPEN_BRACKET parameter_type_list CLOSE_BRACKET
+/ direct_abstract_declarator OPEN_BRACKET CLOSE_BRACKET
+/ direct_abstract_declarator OPEN_BRACKET parameter_list CLOSE_BRACKET
 
-'(' parameter_list ')'
-;
 
 parameter_list
-: parameter_declaration
-| parameter_list ',' parameter_declaration
-;
+/ parameter_declaration COMMA_CHAR parameter_list
+/ parameter_declaration
+
 
 parameter_declaration
-: declaration_specifiers declarator
-| declaration_specifiers abstract_declarator
-| declaration_specifiers
-;
+/ declaration_specifiers declarator
+/ declaration_specifiers abstract_declarator
+/ declaration_specifiers
+
 
 identifier_list
-: IDENTIFIER
-| identifier_list ',' IDENTIFIER
-;
+/ IDENTIFIER COMMA_CHAR identifier_list
+/ IDENTIFIER
+
 
 assignment_operator
-: '='
-| MUL_ASSIGN
-| DIV_ASSIGN
-| MOD_ASSIGN
-| ADD_ASSIGN
-| SUB_ASSIGN
-| LEFT_ASSIGN
-| RIGHT_ASSIGN
-| AND_ASSIGN
-| XOR_ASSIGN
-| OR_ASSIGN
+/ EQ_CHAR
+/ MUL_ASSIGN
+/ DIV_ASSIGN
+/ MOD_ASSIGN
+/ ADD_ASSIGN
+/ SUB_ASSIGN
+/ LEFT_ASSIGN
+/ RIGHT_ASSIGN
+/ AND_ASSIGN
+/ XOR_ASSIGN
+/ OR_ASSIGN
 
-//UP TO 11
 compound_statement
-: '{' '}'
-| '{' block_item_list '}'
-;
+/ OPEN_CURLY CLOSE_CURLY
+/ OPEN_CURLY block_item_list CLOSE_CURLY
+
 
 block_item_list
-: block_item
-| block_item_list block_item
-;
+/ block_item block_item_list
+/ block_item
+
 
 block_item
-: declaration
-| statement
-;
+/ declaration
+/ statement
 
 declaration
-: declaration_specifiers ';'
-| declaration_specifiers init_declarator_list ';'
-;
+/ declaration_specifiers init_declarator_list SEMICOLON_CHAR
+/ declaration_specifiers SEMICOLON_CHAR
+
 
 init_declarator_list
-: init_declarator
-| init_declarator_list ',' init_declarator
-;
+/ init_declarator COMMA_CHAR init_declarator_list
+/ init_declarator
+
 
 init_declarator
-: declarator '=' initializer
-| declarator
-;
+/ declarator EQ_CHAR initializer
+/ declarator
+
 
 initializer
-: '{' initializer_list '}'
-| '{' initializer_list ',' '}'
-| assignment_expression
-;
+/ OPEN_CURLY initializer_list CLOSE_CURLY
+/ assignment_expression
+
 
 initializer_list
-: designation initializer
-| initializer
-| initializer_list ',' designation initializer
-| initializer_list ',' initializer
-;
+/ initializer COMMA_CHAR initializer_list
+/ initializer
 
-designation
-: designator_list '='
-;
-
-designator_list
-: designator
-| designator_list designator
-;
-
-designator
-: '[' constant_expression ']'
-| '.' IDENTIFIER
-;
-
-//UP TO 238
 statement
-: labeled_statement
-| compound_statement
-| expression_statement
-| selection_statement
-| iteration_statement
-| jump_statement
-;
+/ labeled_statement
+/ compound_statement
+/ expression_statement
+/ selection_statement
+/ iteration_statement
+/ jump_statement
+
 
 labeled_statement
-: IDENTIFIER ':' statement
-| CASE constant_expression ':' statement
-| DEFAULT ':' statement
-;
+/ IDENTIFIER COLON_CHAR statement
+/ CASE constant_expression COLON_CHAR statement
+/ DEFAULT COLON_CHAR statement
+
 
 constant_expression
-: logical_or_expression
-;
+/ logical_or_expression
+
 
 expression_statement
-: ';'
-| expression ';'
-;
+/ SEMICOLON_CHAR
+/ expression SEMICOLON_CHAR
+
 
 selection_statement
-: IF '(' expression ')' statement ELSE statement
-| IF '(' expression ')' statement
-| SWITCH '(' expression ')' statement
-;
+/ IF OPEN_BRACKET expression CLOSE_BRACKET statement ELSE statement
+/ IF OPEN_BRACKET expression CLOSE_BRACKET statement
+/ SWITCH OPEN_BRACKET expression CLOSE_BRACKET statement
+
 
 iteration_statement
-: WHILE '(' expression ')' statement
-| DO statement WHILE '(' expression ')' ';'
-| FOR '(' expression_statement expression_statement ')' statement
-| FOR '(' expression_statement expression_statement expression ')' statement
-| FOR '(' declaration expression_statement ')' statement
-| FOR '(' declaration expression_statement expression ')' statement
-;
+/ WHILE OPEN_BRACKET expression CLOSE_BRACKET statement
+/ DO statement WHILE OPEN_BRACKET expression CLOSE_BRACKET SEMICOLON_CHAR
+/ FOR OPEN_BRACKET expression_statement expression_statement CLOSE_BRACKET statement
+/ FOR OPEN_BRACKET expression_statement expression_statement expression CLOSE_BRACKET statement
+/ FOR OPEN_BRACKET declaration expression_statement CLOSE_BRACKET statement
+/ FOR OPEN_BRACKET declaration expression_statement expression CLOSE_BRACKET statement
+
 
 jump_statement
-| CONTINUE ';'
-| BREAK ';'
-| RETURN ';'
-| RETURN expression ';'
-;
-*/
+/ CONTINUE SEMICOLON_CHAR
+/ BREAK SEMICOLON_CHAR
+/ RETURN SEMICOLON_CHAR
+/ RETURN expression SEMICOLON_CHAR
