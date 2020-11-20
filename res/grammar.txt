@@ -2,8 +2,8 @@ translation_unit
 / external_declaration translation_unit_ext
 
 translation_unit_ext
-/ 1
 / external_declaration translation_unit_ext
+/ 1
 
 
 external_declaration
@@ -45,13 +45,22 @@ pointer
 
 
 direct_declarator
-/ IDENTIFIER
+/ direct_declarator_others direct_declarator_ext
+
+direct_declarator_ext
+/ direct_declarator_operators direct_declarator_ext
+/ 1
+
+direct_declarator_operators
+/ OPEN_SQUARE CLOSE_SQUARE
+/ OPEN_SQUARE constant_expression CLOSE_SQUARE
+/ OPEN_BRACKET parameter_list CLOSE_BRACKET
+/ OPEN_BRACKET CLOSE_BRACKET
+/ OPEN_BRACKET identifier_list CLOSE_BRACKET
+
+direct_declarator_others
 / OPEN_BRACKET declarator CLOSE_BRACKET
-/ direct_declarator OPEN_SQUARE CLOSE_SQUARE
-/ direct_declarator OPEN_SQUARE constant_expression CLOSE_SQUARE
-/ direct_declarator OPEN_BRACKET parameter_list CLOSE_BRACKET
-/ direct_declarator OPEN_BRACKET CLOSE_BRACKET
-/ direct_declarator OPEN_BRACKET identifier_list CLOSE_BRACKET
+/ IDENTIFIER
 
 
 assignment_expression
@@ -189,7 +198,6 @@ direct_abstract_declarator
 / direct_abstract_declarator OPEN_SQUARE CLOSE_SQUARE
 / direct_abstract_declarator OPEN_SQUARE constant_expression CLOSE_SQUARE
 / OPEN_BRACKET CLOSE_BRACKET
-/ OPEN_BRACKET parameter_type_list CLOSE_BRACKET
 / direct_abstract_declarator OPEN_BRACKET CLOSE_BRACKET
 / direct_abstract_declarator OPEN_BRACKET parameter_list CLOSE_BRACKET
 
