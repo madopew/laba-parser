@@ -45,15 +45,29 @@ int tend(tstream *s) {
     return (s->index == s->size);
 }
 
-void tpop(tstream *s) {
+size_t tgeti(tstream *s) {
+    return s->index;
+}
+
+void tseti(tstream *s, size_t i) {
+    if(i >= s->size) {
+        fprintf(stderr, "%s\n", "index out of range! : seti");
+        exit(2);
+    }
+    s->index = i;
+}
+
+int tpop(tstream *s) {
     if(s->index + 1 > s->size) {
         fprintf(stderr, "%s\n", "index out of range! : pop");
         exit(2);
     }
+    int result = s->tokens[s->index];
     (s->index)++;
+    return result;
 }
 
-int tpeek(tstream *s) {
+/*int tpeek(tstream *s) {
     if(s->index >= s->size) {
         fprintf(stderr, "%s\n", "index out of range! : peek");
         exit(2);
@@ -75,4 +89,4 @@ int tpeekn(tstream *s, size_t amount) {
         exit(2);
     }
     return s->tokens[s->index + amount];
-}
+}*/

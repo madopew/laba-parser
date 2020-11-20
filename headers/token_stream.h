@@ -18,10 +18,12 @@ tstream *tinit(void);
 void tclose(tstream*);
 void tadd(tstream*, int);
 int tend(tstream*);
+size_t tgeti(tstream*);
+void tseti(tstream*, size_t);
 
-void tpop(tstream*);
-int tpeek(tstream*);
-void tpopn(tstream*, size_t);
-int tpeekn(tstream*, size_t);
+int tpop(tstream*);
+//int tpeek(tstream*);
+//void tpopn(tstream*, size_t);
+//int tpeekn(tstream*, size_t);
 
 #endif //LABA3_TOKEN_STREAM_H
