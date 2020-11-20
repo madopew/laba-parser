@@ -84,6 +84,8 @@ void preprocessor(void);
 "&="			{  return AND_ASSIGN; }
 "^="			{  return XOR_ASSIGN; }
 "|="			{  return OR_ASSIGN; }
+"<<="           {  return LEFT_ASSIGN; }
+">>="           {  return RIGHT_ASSIGN; }
 ">>"			{  return RIGHT_OP; }
 "<<"			{  return LEFT_OP; }
 "++"			{  return INC_OP; }

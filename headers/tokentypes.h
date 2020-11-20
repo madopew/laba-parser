@@ -39,6 +39,8 @@ enum TOKENTYPE {
     AND_ASSIGN,
     XOR_ASSIGN,
     OR_ASSIGN,
+    LEFT_ASSIGN,
+    RIGHT_ASSIGN,
     RIGHT_OP,
     LEFT_OP,
     INC_OP,
