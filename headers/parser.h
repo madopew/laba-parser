@@ -7,9 +7,10 @@
 
 #include "token_stream.h"
 
-int parse(tstream *s);
+int parse(tstream*);
 
 int translation_unit();
+int translation_unit_ext();
 int external_declaration();
 int function_definition();
 int declaration_specifiers();
@@ -31,6 +32,8 @@ int multiplicative_expression();
 int cast_expression();
 int unary_expression();
 int postfix_expression();
+int postfix_expression_ext();
+int postfix_expression_operators();
 int primary_expression();
 int expression();
 int argument_expression_list();
@@ -51,9 +54,6 @@ int init_declarator_list();
 int init_declarator();
 int initializer();
 int initializer_list();
-int designation();
-int designator_list();
-int designator();
 int statement();
 int labeled_statement();
 int constant_expression();
@@ -61,6 +61,7 @@ int expression_statement();
 int selection_statement();
 int iteration_statement();
 int jump_statement();
+
 
 
 #endif //LABA3_PARSER_H
