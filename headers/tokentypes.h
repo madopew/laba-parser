@@ -62,6 +62,7 @@ enum TOKENTYPE {
     DOT_CHAR,
     AND_CHAR,
     EXCL_CHAR,
+    TILDA_CHAR,
     MINUS_CHAR,
     PLUS_CHAR,
     MUL_CHAR,
