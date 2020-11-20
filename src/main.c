@@ -6,6 +6,7 @@
 #include <string.h>
 #include "../headers/tokentypes.h"
 #include "../headers/token_stream.h"
+#include "../headers/parser.h"
 
 #define FILE_PATH_SIZE 64
 #define bool int
@@ -60,6 +61,8 @@ int main() {
     while((c = yylex())) {
         tadd(tokens, c);
     }
+
+    printf("%d\n", parse(tokens));
     tclose(tokens);
 }
 
