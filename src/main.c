@@ -62,7 +62,9 @@ int main() {
         tadd(tokens, c);
     }
 
-    printf("%d\n", parse(tokens));
+    int result = parse(tokens);
+    //printf("%d\n", result);
+    printf("Syntactic analysis completed %s\n", result ? "successfully" : "with an error");
     tclose(tokens);
 }
 
