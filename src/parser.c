@@ -12,7 +12,7 @@
 
 tstream *ptokens;
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 unsigned long long n = 0;
 #define return n++; return
@@ -22,7 +22,7 @@ unsigned long long n = 0;
 int parse(tstream *s) {
     ptokens = s;
     if (translation_unit() && tend(ptokens)) {
-        printf("amount: %llu\n", n);
+        //printf("amount: %llu\n", n);
         return 1;
     } else {
         return 0;
@@ -576,7 +576,10 @@ int cast_expression() {
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && type_name() && tpop(ptokens) == CLOSE_BRACKET && cast_expression()) {
+    if(tpop(ptokens) == OPEN_BRACKET &&
+        type_name() &&
+        tpop(ptokens) == CLOSE_BRACKET &&
+        cast_expression()) {
         return 1;
     }
 
@@ -781,7 +784,8 @@ int unary_operator() {
 
 int type_name() {
     size_t save = tgeti(ptokens);
-    if(specifier_qualifier_list() && abstract_declarator()) {
+    if(specifier_qualifier_list() &&
+        abstract_declarator()) {
         return 1;
     }
 
@@ -831,27 +835,62 @@ int abstract_declarator() {
 
 int direct_abstract_declarator() {
     size_t save = tgeti(ptokens);
+    if(direct_abstract_declarator_others() && direct_abstract_declarator_ext()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    return 0;
+}
+
+int direct_abstract_declarator_ext() {
+    size_t save = tgeti(ptokens);
+    if(direct_abstract_declarator_operators() && direct_abstract_declarator_ext()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    return 0;
+}
+
+int direct_abstract_declarator_operators() {
+    size_t save = tgeti(ptokens);
+    if(direct_abstract_declarator_main()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(tpop(ptokens) == OPEN_BRACKET && parameter_list() && tpop(ptokens) == CLOSE_BRACKET) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    return 0;
+}
+
+int direct_abstract_declarator_others() {
+    size_t save = tgeti(ptokens);
+    if(direct_abstract_declarator_main()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
     if(tpop(ptokens) == OPEN_BRACKET && abstract_declarator() && tpop(ptokens) == CLOSE_BRACKET) {
         return 1;
     }
 
     tseti(ptokens, save);
+    return 0;
+}
+
+int direct_abstract_declarator_main() {
+    size_t save = tgeti(ptokens);
     if(tpop(ptokens) == OPEN_SQUARE && tpop(ptokens) == CLOSE_SQUARE) {
-        return 1;
-    }
-
-    tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_SQUARE && constant_expression() && tpop(ptokens) == CLOSE_SQUARE) {
-        return 1;
-    }
-
-    tseti(ptokens, save);
-    if(direct_abstract_declarator() && tpop(ptokens) == OPEN_SQUARE && tpop(ptokens) == CLOSE_SQUARE) {
-        return 1;
-    }
-
-    tseti(ptokens, save);
-    if(direct_abstract_declarator() && tpop(ptokens) == OPEN_SQUARE && constant_expression() && tpop(ptokens) == CLOSE_SQUARE) {
         return 1;
     }
 
@@ -861,12 +900,7 @@ int direct_abstract_declarator() {
     }
 
     tseti(ptokens, save);
-    if(direct_abstract_declarator() && tpop(ptokens) == OPEN_BRACKET && tpop(ptokens) == CLOSE_BRACKET) {
-        return 1;
-    }
-
-    tseti(ptokens, save);
-    if(direct_abstract_declarator() && tpop(ptokens) == OPEN_BRACKET && parameter_list() && tpop(ptokens) == CLOSE_BRACKET) {
+    if(tpop(ptokens) == OPEN_SQUARE && constant_expression() && tpop(ptokens) == CLOSE_SQUARE) {
         return 1;
     }
 
@@ -1031,7 +1065,9 @@ int block_item() {
 
 int declaration() {
     size_t save = tgeti(ptokens);
-    if(declaration_specifiers() && init_declarator_list() && tpop(ptokens) == SEMICOLON_CHAR) {
+    if(declaration_specifiers() &&
+        init_declarator_list() &&
+        tpop(ptokens) == SEMICOLON_CHAR) {
         return 1;
     }
 
@@ -1046,7 +1082,9 @@ int declaration() {
 
 int init_declarator_list() {
     size_t save = tgeti(ptokens);
-    if(init_declarator() && tpop(ptokens) == COMMA_CHAR && init_declarator_list()) {
+    if(init_declarator() &&
+        tpop(ptokens) == COMMA_CHAR &&
+        init_declarator_list()) {
         return 1;
     }
 
@@ -1061,7 +1099,9 @@ int init_declarator_list() {
 
 int init_declarator() {
     size_t save = tgeti(ptokens);
-    if(declarator() && tpop(ptokens) == EQ_CHAR && initializer()) {
+    if(declarator() &&
+        tpop(ptokens) == EQ_CHAR &&
+        initializer()) {
         return 1;
     }
 
