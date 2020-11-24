@@ -650,7 +650,7 @@ int yy_flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
 #line 1 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
-#line 25 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 18 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 
 #include "../headers/tokentypes.h"
 
@@ -873,7 +873,7 @@ YY_DECL
 		}
 
 	{
-#line 36 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 29 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 
 
 #line 880 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.c"
@@ -935,419 +935,419 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 38 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 31 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {preprocessor();}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 40 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 33 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {comment();}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 41 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 34 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {/* consume // comment*/}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 43 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 36 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return BREAK; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 44 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 37 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return CASE; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 45 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 38 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return CHAR; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 46 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 39 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return CONST; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 47 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 40 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return CONTINUE; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 48 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 41 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return DEFAULT; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 49 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 42 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return DO; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 50 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 43 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return DOUBLE; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 51 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 44 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return ELSE; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 52 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 45 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return FLOAT; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 53 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 46 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return FOR; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 54 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 47 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return IF; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 55 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 48 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return INT; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 56 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 49 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return LONG; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 57 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 50 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return RETURN; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 58 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 51 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return SHORT; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 59 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 52 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return SIGNED; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 60 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 53 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return SIZEOF; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 61 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 54 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return SWITCH; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 62 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 55 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return UNSIGNED; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 63 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 56 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return VOID; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 64 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 57 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return WHILE; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 66 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 59 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return IDENTIFIER; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 67 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 60 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return I_CONSTANT; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 68 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 61 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return I_CONSTANT; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 69 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 62 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return I_CONSTANT; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 70 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 63 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return I_CONSTANT; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 71 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 64 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return F_CONSTANT; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 72 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 65 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return F_CONSTANT; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 73 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 66 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return F_CONSTANT; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 74 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 67 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return F_CONSTANT; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 75 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 68 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return F_CONSTANT; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 76 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 69 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return F_CONSTANT; }
 	YY_BREAK
 case 37:
 /* rule 37 can match eol */
 YY_RULE_SETUP
-#line 77 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 70 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return STRING_LITERAL; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 79 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 72 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return ADD_ASSIGN; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 80 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 73 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return SUB_ASSIGN; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 81 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 74 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return MUL_ASSIGN; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 82 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 75 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return DIV_ASSIGN; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 83 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 76 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return MOD_ASSIGN; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 84 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 77 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return AND_ASSIGN; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 85 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 78 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return XOR_ASSIGN; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 86 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 79 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return OR_ASSIGN; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 87 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 80 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return LEFT_ASSIGN; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 88 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 81 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return RIGHT_ASSIGN; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 89 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 82 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return RIGHT_OP; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 90 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 83 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return LEFT_OP; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 91 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 84 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return INC_OP; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 92 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 85 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return DEC_OP; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 93 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 86 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return AND_OP; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 94 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 87 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return OR_OP; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 95 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 88 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return LE_OP; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 96 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 89 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return GE_OP; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 97 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 90 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return EQ_OP; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 98 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 91 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return NE_OP; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 99 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 92 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return SEMICOLON_CHAR; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 100 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 93 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return OPEN_CURLY; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 101 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 94 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return CLOSE_CURLY; }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 102 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 95 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return COMMA_CHAR; }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 103 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 96 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return COLON_CHAR; }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 104 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 97 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return EQ_CHAR; }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 105 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 98 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return OPEN_BRACKET; }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 106 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 99 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return CLOSE_BRACKET; }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 107 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 100 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return OPEN_SQUARE; }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 108 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 101 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return CLOSE_SQUARE; }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 109 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 102 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return DOT_CHAR; }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 110 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 103 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return AND_CHAR; }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 111 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 104 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return EXCL_CHAR; }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 112 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 105 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return TILDA_CHAR; }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 113 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 106 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return MINUS_CHAR; }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 114 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 107 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return PLUS_CHAR; }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 115 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 108 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return MUL_CHAR; }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 116 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 109 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return DIV_CHAR; }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 117 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 110 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return MOD_CHAR; }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 118 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 111 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return LESS_CHAR; }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 119 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 112 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return GREATER_CHAR; }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 120 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 113 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return XOR_CHAR; }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 121 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 114 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 {  return OR_CHAR; }
 	YY_BREAK
 case 81:
 /* rule 81 can match eol */
 YY_RULE_SETUP
-#line 123 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 116 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 { /* ignore white spaces */  }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 124 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 117 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 { /* discard bad chars */ }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 126 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 119 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 ECHO;
 	YY_BREAK
 #line 1354 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.c"
@@ -2318,7 +2318,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 126 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
+#line 119 "/home/madopew/CLionProjects/laba-parser/lex/c_lexer.l"
 
 
 void comment(void) {

@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../headers/tokentypes.h"
 #include "../headers/token_stream.h"
 #include "../headers/parser.h"
 
@@ -39,6 +38,7 @@ bool isCorrectExtension(char *filepath) {
 }
 
 void inputFilePath(char *path, size_t len) {
+    len--;
     puts("Input path to source file:");
     fflush(stdin);
     while(fgets(path, len, stdin) == NULL) {
@@ -48,23 +48,35 @@ void inputFilePath(char *path, size_t len) {
     path[strlen(path) - 1] = 0;
 }
 
-int main() {
-    /*char file[FILE_PATH_SIZE];
+void inputCorrectFilePath(char *file, size_t len) {
     do {
-        memset(file, 0, FILE_PATH_SIZE);
-        inputFilePath(file, FILE_PATH_SIZE);
-    } while(!isCorrectExtension(file));*/
-    char *file = "../res/test.c";
+        memset(file, 0, len);
+        inputFilePath(file, len);
+    } while(!isCorrectExtension(file));
+}
+
+void initTokenStream(char *file, tstream *tokens) {
     yyin = fopen(file, "r");
-    tstream *tokens = tinit();
     int c;
     while((c = yylex())) {
         tadd(tokens, c);
     }
+}
 
+void outputResult(tstream *tokens) {
     int result = parse(tokens);
-    //printf("%d\n", result);
-    printf("Syntactic analysis completed %s\n", result ? "successfully" : "with an error");
+    printf("Syntactic analysis completed %s\n", result ? "successfully." : "with an error.");
+}
+
+int main() {
+    char file[FILE_PATH_SIZE];
+    inputCorrectFilePath(file, FILE_PATH_SIZE);
+
+    tstream *tokens = tinit();
+    initTokenStream(file, tokens);
+    outputResult(tokens);
     tclose(tokens);
+
+    return 0;
 }
 
