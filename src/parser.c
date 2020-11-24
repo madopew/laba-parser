@@ -12,17 +12,20 @@
 
 tstream *ptokens;
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 unsigned long long n = 0;
+#define debug(n) printf("amount: %llu\n", n)
 #define return n++; return
+#else
+#define debug(n)
 #endif
 
 
 int parse(tstream *s) {
     ptokens = s;
     if (translation_unit() && tend(ptokens)) {
-        //printf("amount: %llu\n", n);
+        debug(n);
         return 1;
     } else {
         return 0;
