@@ -62,73 +62,95 @@ direct_declarator_others
 / OPEN_BRACKET declarator CLOSE_BRACKET
 / IDENTIFIER
 
-
 assignment_expression
-/ unary_expression assignment_operator logical_or_expression
-/ logical_or_expression
+/ logical_or_expression assignment_expression_ext
 
+assignment_expression_ext
+/ assignment_operator unary_expression
+/ 1
 
 logical_or_expression
-/ logical_and_expression OR_OP logical_or_expression
-/ logical_and_expression
+/ logical_and_expression logical_or_expression_ext
 
+logical_or_expression_ext
+/ OR_OP logical_or_expression
+/ 1
 
 logical_and_expression
-/ inclusive_or_expression AND_OP logical_and_expression
-/ inclusive_or_expression
+/ inclusive_or_expression logical_and_expression_ext
 
+logical_and_expression_ext
+/ AND_OP logical_and_expression
+/ 1
 
 inclusive_or_expression
-/ exclusive_or_expression OR_CHAR inclusive_or_expression
-/ exclusive_or_expression
+/ exclusive_or_expression inclusive_or_expression_ext
 
+inclusive_or_expression_ext
+/ OR_CHAR inclusive_or_expression
+/ 1
 
 exclusive_or_expression
-/ and_expression XOR_CHAR exclusive_or_expression
-/ and_expression
+/ and_expression exclusive_or_expression_ext
 
+exclusive_or_expression_ext
+/ XOR_CHAR exclusive_or_expression
+/ 1
 
 and_expression
-/ equality_expression AND_CHAR and_expression
-/ equality_expression
+/ equality_expression and_expression_ext
 
+and_expression_ext
+/ AND_CHAR and_expression
+/ 1
 
 equality_expression
-/ relational_expression NE_OP equality_expression
-/ relational_expression EQ_OP equality_expression
-/ relational_expression
+/ relational_expression equality_expression_ext
+
+equality_expression_ext
+/ NE_OP equality_expression
+/ EQ_OP equality_expression
+/ 1
 
 
 relational_expression
-/ shift_expression LESS_CHAR relational_expression
-/ shift_expression GREATER_CHAR relational_expression
-/ shift_expression LE_OP relational_expression
-/ shift_expression GE_OP  relational_expression
-/ shift_expression
+/ shift_expression relational_expression_ext
 
+relational_expression_ext
+/ LESS_CHAR relational_expression
+/ GREATER_CHAR relational_expression
+/ LE_OP relational_expression
+/ GE_OP relational_expression
+/ 1
 
 shift_expression
-/ additive_expression LEFT_OP shift_expression
-/ additive_expression RIGHT_OP shift_expression
-/ additive_expression
+/ additive_expression shift_expression_ext
 
+shift_expression_ext
+/ LEFT_OP shift_expression
+/ RIGHT_OP shift_expression
+/ 1
 
 additive_expression
-/ multiplicative_expression PLUS_CHAR additive_expression
-/ multiplicative_expression MINUS_CHAR additive_expression
-/ multiplicative_expression
+/ multiplicative_expression additive_expression_ext
 
+additive_expression_ext
+/ PLUS_CHAR additive_expression
+/ MINUS_CHAR additive_expression
+/ 1
 
 multiplicative_expression
-/ cast_expression MUL_CHAR multiplicative_expression
-/ cast_expression DIV_CHAR multiplicative_expression
-/ cast_expression MOD_CHAR multiplicative_expression
-/ cast_expression
+/ cast_expression multiplicative_expression_ext
+
+multiplicative_expression_ext
+/ MUL_CHAR multiplicative_expression
+/ DIV_CHAR multiplicative_expression
+/ MOD_CHAR multiplicative_expression
+/ 1
 
 cast_expression
 / unary_expression
 / OPEN_BRACKET type_name CLOSE_BRACKET cast_expression
-
 
 unary_expression
 / postfix_expression
@@ -161,8 +183,11 @@ primary_expression
 / OPEN_BRACKET expression CLOSE_BRACKET
 
 expression
-/ assignment_expression COMMA_CHAR expression
-/ assignment_expression
+/ assignment_expression expression_ext
+
+expression_ext
+/ COMMA_CHAR expression
+/ 1
 
 argument_expression_list
 / assignment_expression COMMA_CHAR argument_expression_list

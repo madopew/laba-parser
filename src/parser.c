@@ -2,22 +2,34 @@
 // Created by madopew on 17.11.2020.
 //
 
+#include <stdio.h>
 #include "../headers/parser.h"
 #include "../headers/token_stream.h"
 #include "../headers/tokentypes.h"
 
 #define EPS 1
 
+
 tstream *ptokens;
+
+#define DEBUG
+#ifdef DEBUG
+unsigned long long n = 0;
+#define return n++; return
+#endif
+
 
 int parse(tstream *s) {
     ptokens = s;
     if (translation_unit() && tend(ptokens)) {
+        printf("amount: %llu\n", n);
         return 1;
     } else {
         return 0;
     }
 }
+
+
 
 int translation_unit() {
     size_t save = tgeti(ptokens);
@@ -189,8 +201,9 @@ int direct_declarator_ext() {
     }
 
     tseti(ptokens, save);
-    if(EPS)
+    if(EPS) {
         return 1;
+    }
 
     tseti(ptokens, save);
     return 0;
@@ -243,12 +256,22 @@ int direct_declarator_others() {
 
 int assignment_expression() {
     size_t save = tgeti(ptokens);
-    if(unary_expression() && assignment_operator() && logical_or_expression()) {
+    if(logical_or_expression() && assignment_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(logical_or_expression()) {
+    return 0;
+}
+
+int assignment_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(assignment_operator() && unary_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -258,12 +281,22 @@ int assignment_expression() {
 
 int logical_or_expression() {
     size_t save = tgeti(ptokens);
-    if(logical_and_expression() && tpop(ptokens) == OR_OP && logical_or_expression()) {
+    if(logical_and_expression() && logical_or_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(logical_and_expression()) {
+    return 0;
+}
+
+int logical_or_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == OR_OP && logical_or_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -273,12 +306,22 @@ int logical_or_expression() {
 
 int logical_and_expression() {
     size_t save = tgeti(ptokens);
-    if(inclusive_or_expression() && tpop(ptokens) == AND_OP && logical_and_expression()) {
+    if(inclusive_or_expression() && logical_and_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(inclusive_or_expression()) {
+    return 0;
+}
+
+int logical_and_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == AND_OP && logical_and_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -288,12 +331,22 @@ int logical_and_expression() {
 
 int inclusive_or_expression() {
     size_t save = tgeti(ptokens);
-    if(exclusive_or_expression() && tpop(ptokens) == OR_CHAR && inclusive_or_expression()) {
+    if(exclusive_or_expression() && inclusive_or_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(exclusive_or_expression()) {
+    return 0;
+}
+
+int inclusive_or_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == OR_CHAR && inclusive_or_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -303,12 +356,22 @@ int inclusive_or_expression() {
 
 int exclusive_or_expression() {
     size_t save = tgeti(ptokens);
-    if(and_expression() && tpop(ptokens) == XOR_CHAR && exclusive_or_expression()) {
+    if(and_expression() && exclusive_or_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(and_expression()) {
+    return 0;
+}
+
+int exclusive_or_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == XOR_CHAR && exclusive_or_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -318,12 +381,22 @@ int exclusive_or_expression() {
 
 int and_expression() {
     size_t save = tgeti(ptokens);
-    if(equality_expression() && tpop(ptokens) == AND_CHAR && and_expression()) {
+    if(equality_expression() && and_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(equality_expression()) {
+    return 0;
+}
+
+int and_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == AND_CHAR && and_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -333,17 +406,27 @@ int and_expression() {
 
 int equality_expression() {
     size_t save = tgeti(ptokens);
-    if(relational_expression() && tpop(ptokens) == NE_OP && equality_expression()) {
+    if(relational_expression() && equality_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(relational_expression() && tpop(ptokens) == EQ_OP && equality_expression()) {
+    return 0;
+}
+
+int equality_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == NE_OP && equality_expression()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(relational_expression()) {
+    if(tpop(ptokens) == EQ_OP && equality_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -353,27 +436,37 @@ int equality_expression() {
 
 int relational_expression() {
     size_t save = tgeti(ptokens);
-    if(shift_expression() && tpop(ptokens) == LESS_CHAR && relational_expression()) {
+    if(shift_expression() && relational_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(shift_expression() && tpop(ptokens) == GREATER_CHAR && relational_expression()) {
+    return 0;
+}
+
+int relational_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == LESS_CHAR && relational_expression()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(shift_expression() && tpop(ptokens) == LE_OP && relational_expression()) {
+    if(tpop(ptokens) == GREATER_CHAR && relational_expression()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(shift_expression() && tpop(ptokens) == GE_OP && relational_expression()) {
+    if(tpop(ptokens) == LE_OP && relational_expression()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(shift_expression()) {
+    if(tpop(ptokens) == GE_OP && relational_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -383,17 +476,27 @@ int relational_expression() {
 
 int shift_expression() {
     size_t save = tgeti(ptokens);
-    if(additive_expression() && tpop(ptokens) == LEFT_OP && shift_expression()) {
+    if(additive_expression() && shift_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(additive_expression() && tpop(ptokens) == RIGHT_OP && shift_expression()) {
+    return 0;
+}
+
+int shift_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == LEFT_OP && shift_expression()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(additive_expression()) {
+    if(tpop(ptokens) == RIGHT_OP && shift_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -403,17 +506,27 @@ int shift_expression() {
 
 int additive_expression() {
     size_t save = tgeti(ptokens);
-    if(multiplicative_expression() && tpop(ptokens) == PLUS_CHAR && additive_expression()) {
+    if(multiplicative_expression() && additive_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(multiplicative_expression() && tpop(ptokens) == MINUS_CHAR && additive_expression()) {
+    return 0;
+}
+
+int additive_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == PLUS_CHAR && additive_expression()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(multiplicative_expression()) {
+    if(tpop(ptokens) == MINUS_CHAR && additive_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -423,22 +536,32 @@ int additive_expression() {
 
 int multiplicative_expression() {
     size_t save = tgeti(ptokens);
-    if(cast_expression() && tpop(ptokens) == MUL_CHAR && multiplicative_expression()) {
+    if(cast_expression() && multiplicative_expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(cast_expression() && tpop(ptokens) == DIV_CHAR && multiplicative_expression()) {
+    return 0;
+}
+
+int multiplicative_expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == MUL_CHAR && multiplicative_expression()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(cast_expression() && tpop(ptokens) == MOD_CHAR && multiplicative_expression()) {
+    if(tpop(ptokens) == DIV_CHAR && multiplicative_expression()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(cast_expression()) {
+    if(tpop(ptokens) == MOD_CHAR && multiplicative_expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
@@ -583,12 +706,22 @@ int primary_expression() {
 
 int expression() {
     size_t save = tgeti(ptokens);
-    if(assignment_expression() && tpop(ptokens) == COMMA_CHAR && expression()) {
+    if(assignment_expression() && expression_ext()) {
         return 1;
     }
 
     tseti(ptokens, save);
-    if(assignment_expression()) {
+    return 0;
+}
+
+int expression_ext() {
+    size_t save = tgeti(ptokens);
+    if(tpop(ptokens) == COMMA_CHAR && expression()) {
+        return 1;
+    }
+
+    tseti(ptokens, save);
+    if(EPS) {
         return 1;
     }
 
