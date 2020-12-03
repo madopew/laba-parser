@@ -69,11 +69,11 @@ void outputResult(tstream *tokens) {
 }
 
 int main() {
-    char file[FILE_PATH_SIZE];
-    inputCorrectFilePath(file, FILE_PATH_SIZE);
+//    char file[FILE_PATH_SIZE];
+//    inputCorrectFilePath(file, FILE_PATH_SIZE);
 
     tstream *tokens = tinit();
-    initTokenStream(file, tokens);
+    initTokenStream("../res/test.c", tokens);
     outputResult(tokens);
     tclose(tokens);
 

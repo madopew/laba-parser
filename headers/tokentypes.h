@@ -4,8 +4,11 @@
 
 #ifndef LABA3_TOKENTYPES_H
 #define LABA3_TOKENTYPES_H
+
+#define START_TOKEN 300
+
 enum TOKENTYPE {
-    BREAK = 300,
+    BREAK = START_TOKEN,
     CASE,
     CHAR,
     CONST,

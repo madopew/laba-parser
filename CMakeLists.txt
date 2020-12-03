@@ -14,4 +14,4 @@ add_executable(laba3
         headers/token_stream.h
         src/token_stream.c
         headers/parser.h
-        src/parser.c)
+        src/parser.c headers/tokentype_string.h)
