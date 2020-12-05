@@ -4,6 +4,7 @@
 #include "../headers/token_stream.h"
 #include "../headers/tokentypes.h"
 #include "../headers/tokentype_string.h"
+
 #define EPS 1
 
 
@@ -12,7 +13,7 @@ tstream *ptokens;
 #define DEBUG
 #ifdef DEBUG
 unsigned long long _debug_counter_ = 0;
-#define debug() printf("Operations amount: %llu.\n", _debug_counter_)
+#define debug() printf("\nOperations amount: %llu.\n", _debug_counter_)
 #define return _debug_counter_++; return
 #else
 #define debug()
@@ -29,58 +30,93 @@ int parse(tstream *s) {
     }
 }
 
+int isStartFittedRulesChain = 0;
+int isStartFailedRulesChain = 0;
+
+int isFittedRulesChain = 0;
 
 void print_fit_rule(const char *functionName, const int *indexArray, int tokensAmount) {
-    printf("Rule: %s passed successfully. ", functionName);
-    if (tokensAmount == -1) {
-        printf("EPS was founded.\n");
-    } else if (tokensAmount == 0) {
-        printf("Saving last token...\n");
-    } else {
-        printf("Tokens: [");
-        if (indexArray[0] != -1) {
-            printf("%s", get_string_token(ptokens->tokens[indexArray[0]]));
-        } else {
-            printf("%s", "...other rule...");
-        }
-        for (int i = 1; i < tokensAmount; i++) {
-            if (indexArray[i] == -1) {
-                printf("%s", ", ...other rule... ");
+    isStartFailedRulesChain = 0;
+    if (tokensAmount == 0) {
+        if (isFittedRulesChain) {
+            if (isStartFittedRulesChain) {
+                printf(" -> \'%s\'", functionName);
             } else {
-                printf(", %s", get_string_token(ptokens->tokens[indexArray[i]]));
+                printf("\nClimbing success rule stack: \'%s\'", functionName);
+                isStartFittedRulesChain = 1;
             }
+        } else {
+            printf("\nRule: \'%s\' passed successfully. Saving last token...", functionName);
+            isFittedRulesChain = 1;
         }
-        printf("] are saved!\n");
+    } else {
+        isStartFittedRulesChain = 0;
+        printf("\nRule: \'%s\' passed successfully. ", functionName);
+        if (tokensAmount == -1) {
+            printf("EPS was found.");
+        } else {
+            printf("Tokens: [");
+            if (indexArray[0] != -1) {
+                printf("%s", get_string_token(ptokens->tokens[indexArray[0]]));
+            } else {
+                printf("\'%s\'", "...other rule...");
+            }
+            for (int i = 1; i < tokensAmount; i++) {
+                if (indexArray[i] == -1) {
+                    printf("\'%s\'", ", ...other rule... ");
+                } else {
+                    printf(", \'%s\'", get_string_token(ptokens->tokens[indexArray[i]]));
+                }
+            }
+            printf("] are saved!");
+        }
     }
 }
 
+char *pastPrevStr = "";
+char *pastIndexStr = "";
+char *pastNextStr = "";
+
 void print_not_fit_rule(int index, const char *functionName) {
+    isStartFittedRulesChain = 0;
     char output[300] = {0};
     char *prevStr;
     if (index == 0) {
         prevStr = "~empty~";
-    }
-    else {
+    } else {
         prevStr = get_string_token(ptokens->tokens[index - 1]);
     }
     char *indexStr = get_string_token(ptokens->tokens[index]);
     char *nextStr;
     if (ptokens->size == index + 1) {
         nextStr = "~empty~";
-    }
-    else {
+    } else {
         nextStr = get_string_token(ptokens->tokens[index + 1]);
     }
-    sprintf(output, "Rule: '%s' failed. Returning to [..., %s, %s, %s, ...]\n",  functionName, prevStr, indexStr, nextStr);
-    printf("%s", output);
-    printf("%*s%.*s\n", strlen(output) - 9 - strlen(indexStr) - strlen(nextStr), " ", strlen(indexStr), "^^^^^^^^^^^^^^^^^^^^^^^^^");
+    if (strcmp(pastPrevStr, prevStr) | strcmp(pastIndexStr, indexStr) | strcmp(pastNextStr, nextStr)) {
+        isStartFailedRulesChain = 0;
+        sprintf(output, "\nRule: '%s' failed. Returning to [..., %s, %s, %s, ...]\n", functionName, prevStr, indexStr,
+                nextStr);
+        printf("%s", output);
+        printf("%*s%.*s", strlen(output) - 10 - strlen(indexStr) - strlen(nextStr), " ", strlen(indexStr),
+               "^^^^^^^^^^^^^^^^^^^^^^^^^");
+    } else {
+        if (isStartFailedRulesChain) {
+            printf(" -> \'%s\'", functionName);
+        } else {
+            printf("\nRolling back failed rules stack: ");
+            printf("\'%s\'", functionName);
+            isStartFailedRulesChain = 1;
+        }
+    }
+    pastPrevStr = prevStr;
+    pastIndexStr = indexStr;
+    pastNextStr = nextStr;
 }
 
 int translation_unit() {
     size_t save = tgeti(ptokens);
-    if(external_declaration() && translation_unit_ext())  {
-        int indexes[] = {};
-        print_fit_rule(__func__, indexes, 0);
+    if (external_declaration() && translation_unit_ext()) {
         return 1;
     }
 
@@ -91,17 +127,18 @@ int translation_unit() {
 
 int translation_unit_ext() {
     size_t save = tgeti(ptokens);
-    if(tend(ptokens)) {
+    if (tend(ptokens)) {
+        printf("\n%s", "No tokens left to parse.");
         return 1;
     }
 
-    if(external_declaration() && translation_unit_ext()) {
+    if (external_declaration() && translation_unit_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
-    if(EPS) {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -110,14 +147,14 @@ int translation_unit_ext() {
 
 int external_declaration() {
     size_t save = tgeti(ptokens);
-    if(function_definition())  {
+    if (function_definition()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(declaration())  {
+    if (declaration()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -130,7 +167,7 @@ int external_declaration() {
 
 int function_definition() {
     size_t save = tgeti(ptokens);
-    if(declaration_specifiers() && declarator() && compound_statement())  {
+    if (declaration_specifiers() && declarator() && compound_statement()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -143,28 +180,28 @@ int function_definition() {
 
 int declaration_specifiers() {
     size_t save = tgeti(ptokens);
-    if(type_specifier() && declaration_specifiers())  {
+    if (type_specifier() && declaration_specifiers()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(type_specifier())  {
+    if (type_specifier()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == CONST && declaration_specifiers())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == CONST && declaration_specifiers()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == CONST)  {
+    if (tpop(ptokens) == CONST) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
@@ -177,63 +214,63 @@ int declaration_specifiers() {
 
 int type_specifier() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == VOID)  {
+    if (tpop(ptokens) == VOID) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == CHAR)  {
+    if (tpop(ptokens) == CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == SHORT)  {
+    if (tpop(ptokens) == SHORT) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == INT)  {
+    if (tpop(ptokens) == INT) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == LONG)  {
+    if (tpop(ptokens) == LONG) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == FLOAT)  {
+    if (tpop(ptokens) == FLOAT) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == DOUBLE)  {
+    if (tpop(ptokens) == DOUBLE) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == SIGNED)  {
+    if (tpop(ptokens) == SIGNED) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == UNSIGNED)  {
+    if (tpop(ptokens) == UNSIGNED) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
@@ -246,14 +283,14 @@ int type_specifier() {
 
 int declarator() {
     size_t save = tgeti(ptokens);
-    if(pointer() && direct_declarator())  {
+    if (pointer() && direct_declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(direct_declarator())  {
+    if (direct_declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -266,14 +303,14 @@ int declarator() {
 
 int pointer() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == MUL_CHAR && pointer())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == MUL_CHAR && pointer()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == MUL_CHAR)  {
+    if (tpop(ptokens) == MUL_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
@@ -286,7 +323,7 @@ int pointer() {
 
 int direct_declarator() {
     size_t save = tgeti(ptokens);
-    if(direct_declarator_others() && direct_declarator_ext())  {
+    if (direct_declarator_others() && direct_declarator_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -299,14 +336,14 @@ int direct_declarator() {
 
 int direct_declarator_ext() {
     size_t save = tgeti(ptokens);
-    if(direct_declarator_operators() && direct_declarator_ext())  {
+    if (direct_declarator_operators() && direct_declarator_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -319,36 +356,36 @@ int direct_declarator_ext() {
 
 int direct_declarator_operators() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == OPEN_SQUARE && tpop(ptokens) == CLOSE_SQUARE)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == OPEN_SQUARE && tpop(ptokens) == CLOSE_SQUARE) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_SQUARE && constant_expression() && tpop(ptokens) == CLOSE_SQUARE)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_SQUARE && constant_expression() && tpop(ptokens) == CLOSE_SQUARE) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && parameter_list() && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_BRACKET && parameter_list() && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == OPEN_BRACKET && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && identifier_list() && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_BRACKET && identifier_list() && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
@@ -360,14 +397,14 @@ int direct_declarator_operators() {
 
 int direct_declarator_others() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == OPEN_BRACKET && declarator() && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_BRACKET && declarator() && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == IDENTIFIER)  {
+    if (tpop(ptokens) == IDENTIFIER) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
@@ -380,7 +417,7 @@ int direct_declarator_others() {
 
 int assignment_expression() {
     size_t save = tgeti(ptokens);
-    if(logical_or_expression() && assignment_expression_ext())  {
+    if (logical_or_expression() && assignment_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -393,14 +430,14 @@ int assignment_expression() {
 
 int assignment_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(assignment_operator() && unary_expression())  {
+    if (assignment_operator() && unary_expression()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -413,7 +450,7 @@ int assignment_expression_ext() {
 
 int logical_or_expression() {
     size_t save = tgeti(ptokens);
-    if(logical_and_expression() && logical_or_expression_ext())  {
+    if (logical_and_expression() && logical_or_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -426,14 +463,14 @@ int logical_or_expression() {
 
 int logical_or_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == OR_OP && logical_or_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == OR_OP && logical_or_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -446,7 +483,7 @@ int logical_or_expression_ext() {
 
 int logical_and_expression() {
     size_t save = tgeti(ptokens);
-    if(inclusive_or_expression() && logical_and_expression_ext())  {
+    if (inclusive_or_expression() && logical_and_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -459,14 +496,14 @@ int logical_and_expression() {
 
 int logical_and_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == AND_OP && logical_and_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == AND_OP && logical_and_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -479,7 +516,7 @@ int logical_and_expression_ext() {
 
 int inclusive_or_expression() {
     size_t save = tgeti(ptokens);
-    if(exclusive_or_expression() && inclusive_or_expression_ext())  {
+    if (exclusive_or_expression() && inclusive_or_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -492,14 +529,14 @@ int inclusive_or_expression() {
 
 int inclusive_or_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == OR_CHAR && inclusive_or_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == OR_CHAR && inclusive_or_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -512,7 +549,7 @@ int inclusive_or_expression_ext() {
 
 int exclusive_or_expression() {
     size_t save = tgeti(ptokens);
-    if(and_expression() && exclusive_or_expression_ext())  {
+    if (and_expression() && exclusive_or_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -525,14 +562,14 @@ int exclusive_or_expression() {
 
 int exclusive_or_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == XOR_CHAR && exclusive_or_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == XOR_CHAR && exclusive_or_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -545,7 +582,7 @@ int exclusive_or_expression_ext() {
 
 int and_expression() {
     size_t save = tgeti(ptokens);
-    if(equality_expression() && and_expression_ext())  {
+    if (equality_expression() && and_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -558,14 +595,14 @@ int and_expression() {
 
 int and_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == AND_CHAR && and_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == AND_CHAR && and_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -578,7 +615,7 @@ int and_expression_ext() {
 
 int equality_expression() {
     size_t save = tgeti(ptokens);
-    if(relational_expression() && equality_expression_ext())  {
+    if (relational_expression() && equality_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -591,21 +628,21 @@ int equality_expression() {
 
 int equality_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == NE_OP && equality_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == NE_OP && equality_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == EQ_OP && equality_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == EQ_OP && equality_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -618,7 +655,7 @@ int equality_expression_ext() {
 
 int relational_expression() {
     size_t save = tgeti(ptokens);
-    if(shift_expression() && relational_expression_ext())  {
+    if (shift_expression() && relational_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -631,35 +668,35 @@ int relational_expression() {
 
 int relational_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == LESS_CHAR && relational_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == LESS_CHAR && relational_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == GREATER_CHAR && relational_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == GREATER_CHAR && relational_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == LE_OP && relational_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == LE_OP && relational_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == GE_OP && relational_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == GE_OP && relational_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -672,7 +709,7 @@ int relational_expression_ext() {
 
 int shift_expression() {
     size_t save = tgeti(ptokens);
-    if(additive_expression() && shift_expression_ext())  {
+    if (additive_expression() && shift_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -685,21 +722,21 @@ int shift_expression() {
 
 int shift_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == LEFT_OP && shift_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == LEFT_OP && shift_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == RIGHT_OP && shift_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == RIGHT_OP && shift_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -712,7 +749,7 @@ int shift_expression_ext() {
 
 int additive_expression() {
     size_t save = tgeti(ptokens);
-    if(multiplicative_expression() && additive_expression_ext())  {
+    if (multiplicative_expression() && additive_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -725,21 +762,21 @@ int additive_expression() {
 
 int additive_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == PLUS_CHAR && additive_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == PLUS_CHAR && additive_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == MINUS_CHAR && additive_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == MINUS_CHAR && additive_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -752,7 +789,7 @@ int additive_expression_ext() {
 
 int multiplicative_expression() {
     size_t save = tgeti(ptokens);
-    if(cast_expression() && multiplicative_expression_ext())  {
+    if (cast_expression() && multiplicative_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -765,28 +802,28 @@ int multiplicative_expression() {
 
 int multiplicative_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == MUL_CHAR && multiplicative_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == MUL_CHAR && multiplicative_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == DIV_CHAR && multiplicative_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == DIV_CHAR && multiplicative_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == MOD_CHAR && multiplicative_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == MOD_CHAR && multiplicative_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -799,15 +836,15 @@ int multiplicative_expression_ext() {
 
 int cast_expression() {
     size_t save = tgeti(ptokens);
-    if(unary_expression())  {
+    if (unary_expression()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && type_name() && tpop(ptokens) == CLOSE_BRACKET && cast_expression())  {
-        int indexes[] = {save,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == OPEN_BRACKET && type_name() && tpop(ptokens) == CLOSE_BRACKET && cast_expression()) {
+        int indexes[] = {save, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 4);
         return 1;
     }
@@ -819,42 +856,42 @@ int cast_expression() {
 
 int unary_expression() {
     size_t save = tgeti(ptokens);
-    if(postfix_expression())  {
+    if (postfix_expression()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == INC_OP && unary_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == INC_OP && unary_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == DEC_OP && unary_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == DEC_OP && unary_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == SIZEOF && unary_expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == SIZEOF && unary_expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == SIZEOF && tpop(ptokens) == OPEN_BRACKET && type_name() && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,save + 1,-1,ptokens->index - 1};
+    if (tpop(ptokens) == SIZEOF && tpop(ptokens) == OPEN_BRACKET && type_name() && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, save + 1, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 4);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(unary_operator() && cast_expression())  {
+    if (unary_operator() && cast_expression()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -867,7 +904,7 @@ int unary_expression() {
 
 int postfix_expression() {
     size_t save = tgeti(ptokens);
-    if(primary_expression() && postfix_expression_ext())  {
+    if (primary_expression() && postfix_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -880,14 +917,14 @@ int postfix_expression() {
 
 int postfix_expression_ext() {
     size_t save = tgeti(ptokens);
-    if(postfix_expression_operators() && postfix_expression_ext())  {
+    if (postfix_expression_operators() && postfix_expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -900,35 +937,35 @@ int postfix_expression_ext() {
 
 int postfix_expression_operators() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == OPEN_SQUARE && expression() && tpop(ptokens) == CLOSE_SQUARE)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_SQUARE && expression() && tpop(ptokens) == CLOSE_SQUARE) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == OPEN_BRACKET && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && argument_expression_list() && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_BRACKET && argument_expression_list() && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == INC_OP)  {
+    if (tpop(ptokens) == INC_OP) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == DEC_OP)  {
+    if (tpop(ptokens) == DEC_OP) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
@@ -941,36 +978,36 @@ int postfix_expression_operators() {
 
 int primary_expression() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == IDENTIFIER)  {
+    if (tpop(ptokens) == IDENTIFIER) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == I_CONSTANT)  {
+    if (tpop(ptokens) == I_CONSTANT) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == F_CONSTANT)  {
+    if (tpop(ptokens) == F_CONSTANT) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == STRING_LITERAL)  {
+    if (tpop(ptokens) == STRING_LITERAL) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
@@ -982,7 +1019,7 @@ int primary_expression() {
 
 int expression() {
     size_t save = tgeti(ptokens);
-    if(assignment_expression() && expression_ext())  {
+    if (assignment_expression() && expression_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -995,14 +1032,14 @@ int expression() {
 
 int expression_ext() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == COMMA_CHAR && expression())  {
-        int indexes[] = {save,-1};
+    if (tpop(ptokens) == COMMA_CHAR && expression()) {
+        int indexes[] = {save, -1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -1015,14 +1052,14 @@ int expression_ext() {
 
 int argument_expression_list() {
     size_t save = tgeti(ptokens);
-    if(assignment_expression() && tpop(ptokens) == COMMA_CHAR && argument_expression_list())  {
-        int indexes[] = {-1,ptokens->index - 0,-1};
+    if (assignment_expression() && tpop(ptokens) == COMMA_CHAR && argument_expression_list()) {
+        int indexes[] = {-1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(assignment_expression())  {
+    if (assignment_expression()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1035,42 +1072,42 @@ int argument_expression_list() {
 
 int unary_operator() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == AND_CHAR)  {
+    if (tpop(ptokens) == AND_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == MUL_CHAR)  {
+    if (tpop(ptokens) == MUL_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == PLUS_CHAR)  {
+    if (tpop(ptokens) == PLUS_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == MINUS_CHAR)  {
+    if (tpop(ptokens) == MINUS_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == TILDA_CHAR)  {
+    if (tpop(ptokens) == TILDA_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == EXCL_CHAR)  {
+    if (tpop(ptokens) == EXCL_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
@@ -1083,14 +1120,14 @@ int unary_operator() {
 
 int type_name() {
     size_t save = tgeti(ptokens);
-    if(specifier_qualifier_list() && abstract_declarator())  {
+    if (specifier_qualifier_list() && abstract_declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(specifier_qualifier_list())  {
+    if (specifier_qualifier_list()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1103,14 +1140,14 @@ int type_name() {
 
 int specifier_qualifier_list() {
     size_t save = tgeti(ptokens);
-    if(type_specifier() && specifier_qualifier_list())  {
+    if (type_specifier() && specifier_qualifier_list()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(type_specifier())  {
+    if (type_specifier()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1123,21 +1160,21 @@ int specifier_qualifier_list() {
 
 int abstract_declarator() {
     size_t save = tgeti(ptokens);
-    if(pointer() && direct_abstract_declarator())  {
+    if (pointer() && direct_abstract_declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(pointer())  {
+    if (pointer()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(direct_abstract_declarator())  {
+    if (direct_abstract_declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1150,7 +1187,7 @@ int abstract_declarator() {
 
 int direct_abstract_declarator() {
     size_t save = tgeti(ptokens);
-    if(direct_abstract_declarator_others() && direct_abstract_declarator_ext())  {
+    if (direct_abstract_declarator_others() && direct_abstract_declarator_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1163,14 +1200,14 @@ int direct_abstract_declarator() {
 
 int direct_abstract_declarator_ext() {
     size_t save = tgeti(ptokens);
-    if(direct_abstract_declarator_operators() && direct_abstract_declarator_ext())  {
+    if (direct_abstract_declarator_operators() && direct_abstract_declarator_ext()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(EPS)  {
+    if (EPS) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, -1);
         return 1;
@@ -1183,15 +1220,15 @@ int direct_abstract_declarator_ext() {
 
 int direct_abstract_declarator_operators() {
     size_t save = tgeti(ptokens);
-    if(direct_abstract_declarator_main())  {
+    if (direct_abstract_declarator_main()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && parameter_list() && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_BRACKET && parameter_list() && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
@@ -1203,15 +1240,15 @@ int direct_abstract_declarator_operators() {
 
 int direct_abstract_declarator_others() {
     size_t save = tgeti(ptokens);
-    if(direct_abstract_declarator_main())  {
+    if (direct_abstract_declarator_main()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && abstract_declarator() && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_BRACKET && abstract_declarator() && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
@@ -1223,22 +1260,22 @@ int direct_abstract_declarator_others() {
 
 int direct_abstract_declarator_main() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == OPEN_SQUARE && tpop(ptokens) == CLOSE_SQUARE)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == OPEN_SQUARE && tpop(ptokens) == CLOSE_SQUARE) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_BRACKET && tpop(ptokens) == CLOSE_BRACKET)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == OPEN_BRACKET && tpop(ptokens) == CLOSE_BRACKET) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_SQUARE && constant_expression() && tpop(ptokens) == CLOSE_SQUARE)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_SQUARE && constant_expression() && tpop(ptokens) == CLOSE_SQUARE) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
@@ -1250,14 +1287,14 @@ int direct_abstract_declarator_main() {
 
 int parameter_list() {
     size_t save = tgeti(ptokens);
-    if(parameter_declaration() && tpop(ptokens) == COMMA_CHAR && parameter_list())  {
-        int indexes[] = {-1,ptokens->index - 0,-1};
+    if (parameter_declaration() && tpop(ptokens) == COMMA_CHAR && parameter_list()) {
+        int indexes[] = {-1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(parameter_declaration())  {
+    if (parameter_declaration()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1270,21 +1307,21 @@ int parameter_list() {
 
 int parameter_declaration() {
     size_t save = tgeti(ptokens);
-    if(declaration_specifiers() && declarator())  {
+    if (declaration_specifiers() && declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(declaration_specifiers() && abstract_declarator())  {
+    if (declaration_specifiers() && abstract_declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(declaration_specifiers())  {
+    if (declaration_specifiers()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1297,14 +1334,14 @@ int parameter_declaration() {
 
 int identifier_list() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == IDENTIFIER && tpop(ptokens) == COMMA_CHAR && identifier_list())  {
-        int indexes[] = {save,save + 1,-1};
+    if (tpop(ptokens) == IDENTIFIER && tpop(ptokens) == COMMA_CHAR && identifier_list()) {
+        int indexes[] = {save, save + 1, -1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == IDENTIFIER)  {
+    if (tpop(ptokens) == IDENTIFIER) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
@@ -1317,77 +1354,77 @@ int identifier_list() {
 
 int assignment_operator() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == EQ_CHAR)  {
+    if (tpop(ptokens) == EQ_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == MUL_ASSIGN)  {
+    if (tpop(ptokens) == MUL_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == DIV_ASSIGN)  {
+    if (tpop(ptokens) == DIV_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == MOD_ASSIGN)  {
+    if (tpop(ptokens) == MOD_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == ADD_ASSIGN)  {
+    if (tpop(ptokens) == ADD_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == SUB_ASSIGN)  {
+    if (tpop(ptokens) == SUB_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == LEFT_ASSIGN)  {
+    if (tpop(ptokens) == LEFT_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == RIGHT_ASSIGN)  {
+    if (tpop(ptokens) == RIGHT_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == AND_ASSIGN)  {
+    if (tpop(ptokens) == AND_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == XOR_ASSIGN)  {
+    if (tpop(ptokens) == XOR_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OR_ASSIGN)  {
+    if (tpop(ptokens) == OR_ASSIGN) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
@@ -1400,15 +1437,15 @@ int assignment_operator() {
 
 int compound_statement() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == OPEN_CURLY && tpop(ptokens) == CLOSE_CURLY)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == OPEN_CURLY && tpop(ptokens) == CLOSE_CURLY) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == OPEN_CURLY && block_item_list() && tpop(ptokens) == CLOSE_CURLY)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_CURLY && block_item_list() && tpop(ptokens) == CLOSE_CURLY) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
@@ -1420,14 +1457,14 @@ int compound_statement() {
 
 int block_item_list() {
     size_t save = tgeti(ptokens);
-    if(block_item() && block_item_list())  {
+    if (block_item() && block_item_list()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(block_item())  {
+    if (block_item()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1440,14 +1477,14 @@ int block_item_list() {
 
 int block_item() {
     size_t save = tgeti(ptokens);
-    if(declaration())  {
+    if (declaration()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(statement())  {
+    if (statement()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1460,15 +1497,15 @@ int block_item() {
 
 int declaration() {
     size_t save = tgeti(ptokens);
-    if(declaration_specifiers() && init_declarator_list() && tpop(ptokens) == SEMICOLON_CHAR)  {
-        int indexes[] = {-1,-1,ptokens->index - 1};
+    if (declaration_specifiers() && init_declarator_list() && tpop(ptokens) == SEMICOLON_CHAR) {
+        int indexes[] = {-1, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(declaration_specifiers() && tpop(ptokens) == SEMICOLON_CHAR)  {
-        int indexes[] = {-1,ptokens->index - 1};
+    if (declaration_specifiers() && tpop(ptokens) == SEMICOLON_CHAR) {
+        int indexes[] = {-1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
@@ -1480,14 +1517,14 @@ int declaration() {
 
 int init_declarator_list() {
     size_t save = tgeti(ptokens);
-    if(init_declarator() && tpop(ptokens) == COMMA_CHAR && init_declarator_list())  {
-        int indexes[] = {-1,ptokens->index - 0,-1};
+    if (init_declarator() && tpop(ptokens) == COMMA_CHAR && init_declarator_list()) {
+        int indexes[] = {-1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(init_declarator())  {
+    if (init_declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1500,14 +1537,14 @@ int init_declarator_list() {
 
 int init_declarator() {
     size_t save = tgeti(ptokens);
-    if(declarator() && tpop(ptokens) == EQ_CHAR && initializer())  {
-        int indexes[] = {-1,ptokens->index - 0,-1};
+    if (declarator() && tpop(ptokens) == EQ_CHAR && initializer()) {
+        int indexes[] = {-1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(declarator())  {
+    if (declarator()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1520,14 +1557,14 @@ int init_declarator() {
 
 int initializer() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == OPEN_CURLY && initializer_list() && tpop(ptokens) == CLOSE_CURLY)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == OPEN_CURLY && initializer_list() && tpop(ptokens) == CLOSE_CURLY) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(assignment_expression())  {
+    if (assignment_expression()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1540,14 +1577,14 @@ int initializer() {
 
 int initializer_list() {
     size_t save = tgeti(ptokens);
-    if(initializer() && tpop(ptokens) == COMMA_CHAR && initializer_list())  {
-        int indexes[] = {-1,ptokens->index - 0,-1};
+    if (initializer() && tpop(ptokens) == COMMA_CHAR && initializer_list()) {
+        int indexes[] = {-1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(initializer())  {
+    if (initializer()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1560,42 +1597,42 @@ int initializer_list() {
 
 int statement() {
     size_t save = tgeti(ptokens);
-    if(labeled_statement())  {
+    if (labeled_statement()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(compound_statement())  {
+    if (compound_statement()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(expression_statement())  {
+    if (expression_statement()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(selection_statement())  {
+    if (selection_statement()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(iteration_statement())  {
+    if (iteration_statement()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(jump_statement())  {
+    if (jump_statement()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1608,22 +1645,22 @@ int statement() {
 
 int labeled_statement() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == IDENTIFIER && tpop(ptokens) == COLON_CHAR && statement())  {
-        int indexes[] = {save,save + 1,-1};
+    if (tpop(ptokens) == IDENTIFIER && tpop(ptokens) == COLON_CHAR && statement()) {
+        int indexes[] = {save, save + 1, -1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == CASE && constant_expression() && tpop(ptokens) == COLON_CHAR && statement())  {
-        int indexes[] = {save,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == CASE && constant_expression() && tpop(ptokens) == COLON_CHAR && statement()) {
+        int indexes[] = {save, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 4);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == DEFAULT && tpop(ptokens) == COLON_CHAR && statement())  {
-        int indexes[] = {save,save + 1,-1};
+    if (tpop(ptokens) == DEFAULT && tpop(ptokens) == COLON_CHAR && statement()) {
+        int indexes[] = {save, save + 1, -1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
@@ -1635,7 +1672,7 @@ int labeled_statement() {
 
 int constant_expression() {
     size_t save = tgeti(ptokens);
-    if(logical_or_expression())  {
+    if (logical_or_expression()) {
         int indexes[] = {};
         print_fit_rule(__func__, indexes, 0);
         return 1;
@@ -1648,15 +1685,15 @@ int constant_expression() {
 
 int expression_statement() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == SEMICOLON_CHAR)  {
+    if (tpop(ptokens) == SEMICOLON_CHAR) {
         int indexes[] = {save};
         print_fit_rule(__func__, indexes, 1);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(expression() && tpop(ptokens) == SEMICOLON_CHAR)  {
-        int indexes[] = {-1,ptokens->index - 1};
+    if (expression() && tpop(ptokens) == SEMICOLON_CHAR) {
+        int indexes[] = {-1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
@@ -1668,22 +1705,25 @@ int expression_statement() {
 
 int selection_statement() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == IF && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET && statement() && tpop(ptokens) == ELSE && statement())  {
-        int indexes[] = {save,save + 1,-1,ptokens->index - 2,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == IF && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET &&
+        statement() && tpop(ptokens) == ELSE && statement()) {
+        int indexes[] = {save, save + 1, -1, ptokens->index - 2, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 7);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == IF && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET && statement())  {
-        int indexes[] = {save,save + 1,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == IF && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET &&
+        statement()) {
+        int indexes[] = {save, save + 1, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 5);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == SWITCH && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET && statement())  {
-        int indexes[] = {save,save + 1,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == SWITCH && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET &&
+        statement()) {
+        int indexes[] = {save, save + 1, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 5);
         return 1;
     }
@@ -1695,43 +1735,49 @@ int selection_statement() {
 
 int iteration_statement() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == WHILE && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET && statement())  {
-        int indexes[] = {save,save + 1,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == WHILE && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET &&
+        statement()) {
+        int indexes[] = {save, save + 1, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 5);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == DO && statement() && tpop(ptokens) == WHILE && tpop(ptokens) == OPEN_BRACKET && expression() && tpop(ptokens) == CLOSE_BRACKET && tpop(ptokens) == SEMICOLON_CHAR)  {
-        int indexes[] = {save,-1,ptokens->index - 3,ptokens->index - 2,-1,ptokens->index - 0,ptokens->index - 1};
+    if (tpop(ptokens) == DO && statement() && tpop(ptokens) == WHILE && tpop(ptokens) == OPEN_BRACKET && expression() &&
+        tpop(ptokens) == CLOSE_BRACKET && tpop(ptokens) == SEMICOLON_CHAR) {
+        int indexes[] = {save, -1, ptokens->index - 3, ptokens->index - 2, -1, ptokens->index - 0, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 7);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == FOR && tpop(ptokens) == OPEN_BRACKET && expression_statement() && expression_statement() && tpop(ptokens) == CLOSE_BRACKET && statement())  {
-        int indexes[] = {save,save + 1,-1,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == FOR && tpop(ptokens) == OPEN_BRACKET && expression_statement() && expression_statement() &&
+        tpop(ptokens) == CLOSE_BRACKET && statement()) {
+        int indexes[] = {save, save + 1, -1, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 6);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == FOR && tpop(ptokens) == OPEN_BRACKET && expression_statement() && expression_statement() && expression() && tpop(ptokens) == CLOSE_BRACKET && statement())  {
-        int indexes[] = {save,save + 1,-1,-1,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == FOR && tpop(ptokens) == OPEN_BRACKET && expression_statement() && expression_statement() &&
+        expression() && tpop(ptokens) == CLOSE_BRACKET && statement()) {
+        int indexes[] = {save, save + 1, -1, -1, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 7);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == FOR && tpop(ptokens) == OPEN_BRACKET && declaration() && expression_statement() && tpop(ptokens) == CLOSE_BRACKET && statement())  {
-        int indexes[] = {save,save + 1,-1,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == FOR && tpop(ptokens) == OPEN_BRACKET && declaration() && expression_statement() &&
+        tpop(ptokens) == CLOSE_BRACKET && statement()) {
+        int indexes[] = {save, save + 1, -1, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 6);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == FOR && tpop(ptokens) == OPEN_BRACKET && declaration() && expression_statement() && expression() && tpop(ptokens) == CLOSE_BRACKET && statement())  {
-        int indexes[] = {save,save + 1,-1,-1,-1,ptokens->index - 0,-1};
+    if (tpop(ptokens) == FOR && tpop(ptokens) == OPEN_BRACKET && declaration() && expression_statement() &&
+        expression() && tpop(ptokens) == CLOSE_BRACKET && statement()) {
+        int indexes[] = {save, save + 1, -1, -1, -1, ptokens->index - 0, -1};
         print_fit_rule(__func__, indexes, 7);
         return 1;
     }
@@ -1743,29 +1789,29 @@ int iteration_statement() {
 
 int jump_statement() {
     size_t save = tgeti(ptokens);
-    if(tpop(ptokens) == CONTINUE && tpop(ptokens) == SEMICOLON_CHAR)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == CONTINUE && tpop(ptokens) == SEMICOLON_CHAR) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == BREAK && tpop(ptokens) == SEMICOLON_CHAR)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == BREAK && tpop(ptokens) == SEMICOLON_CHAR) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == RETURN && tpop(ptokens) == SEMICOLON_CHAR)  {
-        int indexes[] = {save,save + 1};
+    if (tpop(ptokens) == RETURN && tpop(ptokens) == SEMICOLON_CHAR) {
+        int indexes[] = {save, save + 1};
         print_fit_rule(__func__, indexes, 2);
         return 1;
     }
 
     tseti(ptokens, save);
-    if(tpop(ptokens) == RETURN && expression() && tpop(ptokens) == SEMICOLON_CHAR)  {
-        int indexes[] = {save,-1,ptokens->index - 1};
+    if (tpop(ptokens) == RETURN && expression() && tpop(ptokens) == SEMICOLON_CHAR) {
+        int indexes[] = {save, -1, ptokens->index - 1};
         print_fit_rule(__func__, indexes, 3);
         return 1;
     }
