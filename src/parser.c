@@ -1,24 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include "../headers/parser.h"
-#include "../headers/token_stream.h"
 #include "../headers/tokentypes.h"
-#include "../headers/tokentype_string.h"
 #define EPS 1
 
 
+// define it to disable log output
+//#define NDEBUG
+#include "../headers/log_writer.h"
+
 tstream *ptokens;
-
-#define DEBUG
-#ifdef DEBUG
-unsigned long long _debug_counter_ = 0;
-#define debug() printf("Operations amount: %llu.\n", _debug_counter_)
-#define return _debug_counter_++; return
-#else
-#define debug()
-#endif
-
-
 int parse(tstream *s) {
     ptokens = s;
     if (translation_unit() && tend(ptokens)) {
@@ -29,87 +20,9 @@ int parse(tstream *s) {
     }
 }
 
-
-int isStartFittedRulesChain = 0;
-int isStartFailedRulesChain = 0;
- 
-int isFittedRulesChain = 0;
-
-void print_fit_rule(const char *functionName, const char *symbols[], int tokensAmount) {
-    isStartFailedRulesChain = 0;
-    if (tokensAmount == 0) {
-        if (isFittedRulesChain) {
-            if (isStartFittedRulesChain) {
-                printf(" -> '%s'", functionName);
-            } else {
-                printf("\nClimbing success rule stack: '%s'", functionName);
-                isStartFittedRulesChain = 1;
-            }
-        } else {
-            printf("\nRule: '%s' passed successfully. Saving last token...", functionName);
-            isFittedRulesChain = 1;
-        }
-    } else {
-        isStartFittedRulesChain = 0;
-        printf("\nRule: '%s' passed successfully. ", functionName);
-        if (tokensAmount == -1) {
-            printf("EPS was found.");
-        } else {
-            printf("Symbols: [%s", symbols[0]);
-            for (int i = 1; i < tokensAmount; i++) {
-                printf(", %s", symbols[i]);
-            }
-            printf("] are saved!");
-        }
-    }
-}
-
-char *pastPrevStr = "";
-char *pastIndexStr = "";
-char *pastNextStr = "";
- 
-void print_not_fit_rule(int index, const char *functionName) {
-    isStartFittedRulesChain = 0;
-    char output[300] = {0};
-    char *prevStr;
-    if (index == 0) {
-        prevStr = "~empty~";
-    } else {
-        prevStr = get_string_token(ptokens->tokens[index - 1]);
-    }
-    char *indexStr = get_string_token(ptokens->tokens[index]);
-    char *nextStr;
-    if (ptokens->size == index + 1) {
-        nextStr = "~empty~";
-    } else {
-        nextStr = get_string_token(ptokens->tokens[index + 1]);
-    }
-    if (strcmp(pastPrevStr, prevStr) || strcmp(pastIndexStr, indexStr) || strcmp(pastNextStr, nextStr)) {
-        isStartFailedRulesChain = 0;
-        sprintf(output, "\nRule: '%s' failed. Returning to [..., %s, %s, %s, ...]\n", functionName,
-                prevStr, indexStr, nextStr);
-        printf("%s", output);
-        printf("%*s%.*s", strlen(output) - 10 - strlen(indexStr) - strlen(nextStr), " ", strlen(indexStr),
-               "^^^^^^^^^^^^^^^^^^^^^^^^^");
-    } else {
-        if (isStartFailedRulesChain) {
-            printf(" -> '%s'", functionName);
-        } else {
-            printf("\nRolling back failed rules stack: ");
-            printf("'%s'", functionName);
-            isStartFailedRulesChain = 1;
-        }
-    }
-    pastPrevStr = prevStr;
-    pastIndexStr = indexStr;
-    pastNextStr = nextStr;
-}
-
 int translation_unit() {
     size_t save = tgeti(ptokens);
-    if(external_declaration() && translation_unit_ext())  {
-        const char *symbols[] = {};
-        print_fit_rule(__func__, symbols, 0);
+    if(external_declaration() && translation_unit_ext()) {
         return 1;
     }
 
@@ -119,21 +32,20 @@ int translation_unit() {
 }
 
 int translation_unit_ext() {
-    size_t save = tgeti(ptokens);
     if (tend(ptokens)) {
         printf("\n%s", "No tokens left to parse.");
         return 1;
     }
  
     if (external_declaration() && translation_unit_ext()) {
-        int indexes[] = {};
-        print_fit_rule(__func__, indexes, 0);
+        const char *rules[] = {};
+        print_fit_rule(__func__, rules, 0);
         return 1;
     }
- 
+
     if (EPS) {
-        int indexes[] = {};
-        print_fit_rule(__func__, indexes, -1);
+        const char *rules[] = {};
+        print_fit_rule(__func__, rules, -1);
         return 1;
     }
 }

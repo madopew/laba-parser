@@ -65,7 +65,7 @@ void initTokenStream(char *file, tstream *tokens) {
 
 void outputResult(tstream *tokens) {
     int result = parse(tokens);
-    printf("Syntactic analysis completed %s\n", result ? "successfully." : "with an error.");
+    printf("\nSyntactic analysis completed %s\n", result ? "successfully." : "with an error.");
 }
 
 int main() {
